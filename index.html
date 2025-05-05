@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Grapheur Amélioré</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h2>Visualiseur de Fonction</h2>
+
+  <div class="function-list">
+    <span>sin(x)</span>
+    <span>cos(x)</span>
+    <span>tan(x)</span>
+    <span>log(x)</span>
+    <span>racine(x)</span>
+    <span>absolue(x)</span>
+    <span>x ^ 2 (puissance)</span>
+    <span>2x = 2*x</span>
+    <span>π = pi</span>
+    <span>Vous pouvez utiliser : a, b, x, etc.</span>
+  </div>
+
+  <input type="text" id="functionInput" placeholder="Ex : a*x^2 + b ou sin(x)" />
+  <canvas id="graphCanvas" width="800" height="500"></canvas>
+
+  <script>
+    const canvas = document.getElementById('graphCanvas');
+    const ctx = canvas.getContext('2d');
+    const input = document.getElementById('functionInput');
+
+    const variables = {
+      a: 1,
+      b: 0,
+      y: 0
+    };
+
+    function resizeCanvas() {
+      const containerWidth = canvas.parentElement.clientWidth;
+      canvas.width = Math.min(800, containerWidth - 40);
+      canvas.height = 500;
+      drawGrid();
+      updateGraph();
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+
+    const SCALE = 40;
+
+    function drawGrid() {
+      const WIDTH = canvas.width;
+      const HEIGHT = canvas.height;
+
+      ctx.clearRect(0, 0, WIDTH, HEIGHT);
+      ctx.strokeStyle = '#eee';
+      ctx.lineWidth = 1;
+
+      for (let x = 0; x <= WIDTH; x += SCALE) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, HEIGHT);
+        ctx.stroke();
+      }
+
+      for (let y = 0; y <= HEIGHT; y += SCALE) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(WIDTH, y);
+        ctx.stroke();
+      }
+
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 1.5;
+
+      ctx.beginPath();
+      ctx.moveTo(0, HEIGHT / 2);
+      ctx.lineTo(WIDTH, HEIGHT / 2);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(WIDTH / 2, 0);
+      ctx.lineTo(WIDTH / 2, HEIGHT);
+      ctx.stroke();
+
+      ctx.fillStyle = '#333';
+      ctx.font = '12px Space Mono';
+
+      for (let x = -Math.floor(WIDTH / (2 * SCALE)); x <= Math.floor(WIDTH / (2 * SCALE)); x++) {
+        if (x === 0) continue;
+        const px = WIDTH / 2 + x * SCALE;
+        ctx.fillText(x.toString(), px - 5, HEIGHT / 2 + 15);
+      }
+
+      for (let y = -Math.floor(HEIGHT / (2 * SCALE)); y <= Math.floor(HEIGHT / (2 * SCALE)); y++) {
+        if (y === 0) continue;
+        const py = HEIGHT / 2 - y * SCALE;
+        ctx.fillText(y.toString(), WIDTH / 2 + 5, py + 3);
+      }
+    }
+
+    function preprocessFunction(str) {
+      if (/[^0-9+\-*/^().x\sA-Za-z]/.test(str)) throw new Error("Caractères non autorisés");
+
+      return str
+        .replace(/sin/g, 'Math.sin')
+        .replace(/cos/g, 'Math.cos')
+        .replace(/tan/g, 'Math.tan')
+        .replace(/log/g, 'Math.log')
+        .replace(/\bpi\b/g, 'Math.PI')
+        .replace(/\bπ\b/g, 'Math.PI')
+        .replace(/racine/g, 'Math.sqrt')
+        .replace(/absolue/g, 'Math.abs')
+        .replace(/\^/g, '**');
+    }
+
+    function plotFunction(fx) {
+      const WIDTH = canvas.width;
+      const HEIGHT = canvas.height;
+
+      drawGrid();
+      ctx.beginPath();
+      ctx.strokeStyle = 'red';
+      ctx.lineWidth = 2;
+
+      let first = true;
+      for (let px = 0; px <= WIDTH; px++) {
+        const x = (px - WIDTH / 2) / SCALE;
+        const scope = { x, ...variables };
+
+        let y;
+        try {
+          y = fx(scope);
+          if (!isFinite(y)) continue;
+        } catch {
+          continue;
+        }
+
+        const py = HEIGHT / 2 - y * SCALE;
+        if (first) {
+          ctx.moveTo(px, py);
+          first = false;
+        } else {
+          ctx.lineTo(px, py);
+        }
+      }
+
+      ctx.stroke();
+    }
+
+    function updateGraph() {
+      const userInput = input.value.trim();
+      if (userInput === "") {
+        drawGrid();
+        return;
+      }
+
+      try {
+        const expr = preprocessFunction(userInput);
+
+        const matches = expr.match(/\b[a-zA-Z_]\w*\b/g) || [];
+        const usedVars = Array.from(new Set(matches.filter(name => name !== 'Math')));
+
+        const fx = new Function("scope", `
+          const { ${usedVars.join(", ")} } = scope;
+          return ${expr};
+        `);
+
+        plotFunction(fx);
+      } catch (e) {
+        drawGrid();
+        console.error("Erreur de parsing de la fonction :", e.message);
+      }
+    }
+
+    input.addEventListener('input', updateGraph);
+    resizeCanvas();
+  </script>
+
+</body>
+</html>

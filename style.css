@@ -1,0 +1,44 @@
+body {
+    font-family: 'Space Mono', monospace;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
+    background-color: #f9f9f9;
+  }
+
+  .function-list {
+    max-width: 90%;
+    text-align: center;
+    font-size: 14px;
+    color: #444;
+    margin-bottom: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .function-list span {
+    background-color: #eee;
+    padding: 3px 8px;
+    border-radius: 5px;
+  }
+
+  #functionInput {
+    width: 90%;
+    max-width: 600px;
+    padding: 10px;
+    font-size: 18px;
+    margin-bottom: 20px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+  }
+
+  #graphCanvas {
+    width: 100%;
+    max-width: 800px;
+    height: auto;
+    border: 1px solid #ccc;
+    background-color: #fff;
+  }
