@@ -2,7 +2,7 @@
 
 This project is an **interactive web application** that allows you to visualize **mathematical functions** in real time on a 2D Cartesian coordinate system.
 
-Mathematical Graphing link: [Mathematical Graphing]()
+Mathematical Graphing link: [Mathematical Graphing](https://drichdev.github.io/Mathematical-Graphing-/)
 
 ---
 
