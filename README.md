@@ -28,4 +28,3 @@ Mathematical Graphing link: [Mathematical Graphing](https://drichdev.github.io/M
 - **CSS** (optionally with Tailwind): For responsive and minimalist design.
 - **Vanilla JavaScript**: Handles math parsing, drawing, and user interactions.
 - **HTML5 Canvas (2D API)**: For plotting functions in real time.
-
